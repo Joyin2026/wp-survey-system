@@ -3,7 +3,7 @@
  * 独立问卷页面模板
  * 
  * 通过 ?wpsurvey_id=N 直接访问时使用此模板
- * 包含完整的 HTML 页面结构
+ * 使用主题的页眉和页脚，保持网站视觉一致性
  *
  * @package WP_Survey
  */
@@ -24,26 +24,15 @@ $type_labels = array(
     'rating' => '评分题',
     'matrix' => '矩阵题',
 );
+
+// 使用主题页眉
+get_header();
 ?>
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo esc_html($survey['title']); ?> - <?php bloginfo('name'); ?></title>
-    <?php wp_head(); ?>
-    <style>
-        body { background: #f5f5f5; margin: 0; padding: 20px; }
-        .wpsurvey-single-wrap { max-width: 720px; margin: 0 auto; }
-        .wpsurvey-back-link { display: inline-block; margin-bottom: 15px; color: #666; text-decoration: none; font-size: 14px; }
-        .wpsurvey-back-link:hover { color: #333; }
-    </style>
-</head>
-<body>
-    <div class="wpsurvey-single-wrap">
-        <a href="<?php echo esc_url(home_url()); ?>" class="wpsurvey-back-link">&larr; 返回首页</a>
-        <?php include WPSURVEY_PLUGIN_DIR . 'templates/frontend/survey-form.php'; ?>
-    </div>
-    <?php wp_footer(); ?>
-</body>
-</html>
+
+<div class="wpsurvey-single-wrap" style="max-width: 720px; margin: 30px auto; padding: 0 15px;">
+    <?php include WPSURVEY_PLUGIN_DIR . 'templates/frontend/survey-form.php'; ?>
+</div>
+
+<?php
+// 使用主题页脚
+get_footer();
