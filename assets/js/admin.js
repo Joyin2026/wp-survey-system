@@ -29,11 +29,11 @@
 
             if (!$builder.length || !$floatingBtn.length) return;
 
-            // 检查是否有题目
+            // 检查是否需要显示浮动按钮（3个题目以上才显示）
             function updateFloatingBtn() {
                 var hasQuestions = $builder.find('.wpsurvey-question-item').length >= 3;
                 if (hasQuestions) {
-                    $floatingBtn.show();
+                    $floatingBtn.show().prop('disabled', false).removeClass('processing');
                 } else {
                     $floatingBtn.hide();
                 }
@@ -42,20 +42,22 @@
             // 初始化时检查
             updateFloatingBtn();
 
-            // 点击悬浮按钮：滚动到顶部按钮，然后触发添加（防止重复点击）
+            // 点击悬浮按钮：触发顶部的添加题目按钮
             $floatingBtn.off('click').on('click', function() {
+                if ($floatingBtn.prop('disabled')) return;
+
                 var $panelHeader = $builder.closest('.wpsurvey-panel').find('.wpsurvey-panel-header');
                 var $addBtn = $panelHeader.find('.wpsurvey-btn-add-question');
 
-                // 禁用按钮防止重复点击
-                $floatingBtn.prop('disabled', true).addClass('processing');
-
                 if ($addBtn.length) {
-                    // 立即隐藏浮动按钮并触发添加
-                    $floatingBtn.hide();
+                    // 短暂禁用防重复点击
+                    $floatingBtn.prop('disabled', true).addClass('processing');
                     $addBtn.trigger('click');
-                } else {
-                    $floatingBtn.prop('disabled', false).removeClass('processing');
+                    // 500ms后恢复按钮（添加题目完成后）
+                    setTimeout(function() {
+                        $floatingBtn.prop('disabled', false).removeClass('processing');
+                        updateFloatingBtn();
+                    }, 500);
                 }
             });
         },
@@ -307,8 +309,7 @@
                         self.loadJumpTargets();
 
                         // 隐藏悬浮按钮
-                        $('#wpsurvey-floating-add-btn').hide();
-
+                        
                         // 滚动回"添加题目"按钮位置，保持按钮在视野内
                         if ($addBtn.length) {
                             $('html, body').animate({
