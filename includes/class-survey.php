@@ -394,38 +394,54 @@ class WP_Survey {
                     'settings' => $settings,
                 ));
 
-                // 更新选项：先获取旧选项
+                // 更新选项：按ID增量更新
                 $existing_options = $this->db->get_options($question_id);
+                $existing_option_ids = wp_list_pluck($existing_options, 'id');
                 
-                // 只有当新选项数据非空时才替换，否则保留旧选项
                 if (!empty($options)) {
-                    // 删除旧选项
-                    foreach ($existing_options as $opt) {
-                        $this->db->delete_option($opt['id']);
-                    }
-
-                    // 创建新选项
+                    $new_option_ids = array();
                     $opt_order = 0;
-                    foreach ($options as $opt_idx => $opt_text) {
-                        $opt_text = trim($opt_text);
-                        if (!empty($opt_text)) {
-                            $jump_target = null;
-                            if (isset($q_data['jump_options'][$opt_idx])) {
-                                $jump_target = $q_data['jump_options'][$opt_idx];
-                                if ($jump_target === '' || $jump_target === 0) {
-                                    $jump_target = null; // "结束问卷" 或 "默认" 转为 null
-                                }
-                            }
-                            $this->db->create_option(array(
-                                'question_id' => $question_id,
+                    
+                    foreach ($options as $opt_data) {
+                        $opt_id = isset($opt_data['id']) ? (int) $opt_data['id'] : 0;
+                        $opt_text = isset($opt_data['option_text']) ? trim($opt_data['option_text']) : '';
+                        
+                        if (empty($opt_text)) {
+                            continue; // 跳过空选项
+                        }
+                        
+                        $jump_target = isset($opt_data['jump_to_question_id']) ? $opt_data['jump_to_question_id'] : null;
+                        
+                        if ($opt_id > 0 && in_array($opt_id, $existing_option_ids)) {
+                            // 更新现有选项
+                            $this->db->update_option($opt_id, array(
                                 'option_text' => $opt_text,
-                                'sort_order' => $opt_order++,
+                                'sort_order' => $opt_order,
                                 'jump_to_question_id' => $jump_target,
                             ));
+                            $new_option_ids[] = $opt_id;
+                        } else {
+                            // 创建新选项
+                            $new_id = $this->db->create_option(array(
+                                'question_id' => $question_id,
+                                'option_text' => $opt_text,
+                                'sort_order' => $opt_order,
+                                'jump_to_question_id' => $jump_target,
+                            ));
+                            if ($new_id) {
+                                $new_option_ids[] = $new_id;
+                            }
+                        }
+                        $opt_order++;
+                    }
+                    
+                    // 删除不在新数据中的旧选项
+                    foreach ($existing_option_ids as $existing_opt_id) {
+                        if (!in_array($existing_opt_id, $new_option_ids)) {
+                            $this->db->delete_option($existing_opt_id);
                         }
                     }
                 }
-                // 如果新选项为空且旧选项存在，保留旧选项不变
             } else {
                 // 创建新题目
                 $new_question_id = $this->db->create_question(array(
@@ -439,23 +455,18 @@ class WP_Survey {
 
                 // 创建选项
                 $opt_order = 0;
-                foreach ($options as $opt_idx => $opt_text) {
-                    $opt_text = trim($opt_text);
-                    if (!empty($opt_text)) {
-                        $jump_target = null;
-                        if (isset($q_data['jump_options'][$opt_idx])) {
-                            $jump_target = $q_data['jump_options'][$opt_idx];
-                            if ($jump_target === '' || $jump_target === 0) {
-                                $jump_target = null;
-                            }
-                        }
-                        $this->db->create_option(array(
-                            'question_id' => $new_question_id,
-                            'option_text' => $opt_text,
-                            'sort_order' => $opt_order++,
-                            'jump_to_question_id' => $jump_target,
-                        ));
+                foreach ($options as $opt_data) {
+                    $opt_text = isset($opt_data['option_text']) ? trim($opt_data['option_text']) : '';
+                    if (empty($opt_text)) {
+                        continue;
                     }
+                    $jump_target = isset($opt_data['jump_to_question_id']) ? $opt_data['jump_to_question_id'] : null;
+                    $this->db->create_option(array(
+                        'question_id' => $new_question_id,
+                        'option_text' => $opt_text,
+                        'sort_order' => $opt_order++,
+                        'jump_to_question_id' => $jump_target,
+                    ));
                 }
                 
                 $question_id = $new_question_id;

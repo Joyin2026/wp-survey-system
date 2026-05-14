@@ -129,6 +129,7 @@ $status_options = array(
                                         $q_index = $index;
                                         foreach ($question['options'] as $opt_idx => $option) {
                                             $options_html .= '<div class="wpsurvey-option-item">';
+                                            $options_html .= '<input type="hidden" name="questions[' . $q_index . '][option_ids][]" value="' . esc_attr($option['id']) . '">';
                                             $options_html .= '<input type="text" name="questions[' . $q_index . '][options][]" value="' . esc_attr($option['option_text']) . '" placeholder="选项内容">';
                                             $options_html .= '<select name="questions[' . $q_index . '][jump_to][]" class="wpsurvey-jump-select" title="选择此项后跳转到">';
                                             $options_html .= '<option value="">默认顺序</option>';

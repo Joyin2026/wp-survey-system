@@ -305,32 +305,32 @@ class WP_Survey_Admin {
             );
 
             $question['options'] = array();
-            $question['jump_options'] = array();
             
             // 选择题类型的选项处理
             if (in_array($question_type, array('radio', 'checkbox', 'select'))) {
+                $option_ids = isset($q_data['option_ids']) ? (array) $q_data['option_ids'] : array();
                 $option_texts = isset($q_data['options']) ? (array) $q_data['options'] : array();
-                // 兼容 jump_to[] 和 jump_to 两种字段名
                 $jump_targets = isset($q_data['jump_to']) ? (array) $q_data['jump_to'] : array();
                 
-                // 修复：以 options 的长度为准，jump_to 短的补 null，长的截断
-                // 不再用 min() 截断，避免删除选项后数据丢失
-                $option_texts = array_values(array_filter($option_texts, function($v) {
-                    return trim($v) !== '';
-                }));
-                
-                // 遍历 options，按其长度构建 jump_options
-                foreach ($option_texts as $i => $opt_text) {
-                    $question['options'][] = trim(sanitize_text_field($opt_text));
-                    $question['jump_options'][] = isset($jump_targets[$i]) && $jump_targets[$i] !== ''
-                        ? (int) $jump_targets[$i]
-                        : null;
-                }
-                
-                // 如果所有选项都被过滤掉了，至少保留一个空选项以确保题目有效
-                if (empty($question['options']) && !empty($option_texts)) {
-                    $question['options'][] = '';
-                    $question['jump_options'][] = null;
+                // 以选项文本数组的长度为基准，构建结构化选项数组
+                $count = count($option_texts);
+                for ($i = 0; $i < $count; $i++) {
+                    $text = trim($option_texts[$i]);
+                    if ($text === '') {
+                        continue; // 跳过空选项
+                    }
+                    
+                    $opt_id = isset($option_ids[$i]) ? (int) $option_ids[$i] : 0;
+                    $jump = null;
+                    if (isset($jump_targets[$i]) && $jump_targets[$i] !== '' && $jump_targets[$i] !== '0') {
+                        $jump = (int) $jump_targets[$i];
+                    }
+                    
+                    $question['options'][] = array(
+                        'id' => $opt_id,
+                        'option_text' => sanitize_text_field($text),
+                        'jump_to_question_id' => $jump,
+                    );
                 }
             }
 

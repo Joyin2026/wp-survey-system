@@ -392,6 +392,9 @@ class WP_Survey_AJAX {
                                 foreach ($options as $opt_idx => $option):
                                 ?>
                                 <div class="wpsurvey-option-item">
+                                    <input type="hidden" 
+                                           name="questions[<?php echo esc_attr($index); ?>][option_ids][]" 
+                                           value="<?php echo esc_attr($option['id'] ?? 0); ?>">
                                     <input type="text" 
                                            name="questions[<?php echo esc_attr($index); ?>][options][]"
                                            value="<?php echo esc_attr($option['option_text'] ?? ''); ?>"

@@ -106,6 +106,7 @@
                 var optionCount = $list.find('.wpsurvey-option-item').length;
                 
                 var html = '<div class="wpsurvey-option-item">' +
+                    '<input type="hidden" name="questions[' + index + '][option_ids][]" value="0">' +
                     '<input type="text" name="questions[' + index + '][options][]" placeholder="选项内容">' +
                     '<select name="questions[' + index + '][jump_to][]" class="wpsurvey-jump-select" title="选择此项后跳转到">' +
                     '<option value="">默认顺序</option>' +
@@ -142,6 +143,12 @@
                     
                     $options.each(function(optIdx) {
                         var $item = $(this);
+                        
+                        // 确保 option_id hidden 字段存在
+                        var $optId = $item.find('input[name$="[option_ids][]"]');
+                        if (!$optId.length) {
+                            $item.prepend('<input type="hidden" name="questions[' + index + '][option_ids][]" value="0">');
+                        }
                         
                         // 确保 input 存在
                         var $input = $item.find('input[name$="[options][]"]');
@@ -351,6 +358,7 @@
                     '<td>' +
                     '<div class="wpsurvey-options-list">' +
                     '<div class="wpsurvey-option-item">' +
+                    '<input type="hidden" name="questions[' + index + '][option_ids][]" value="0">' +
                     '<input type="text" name="questions[' + index + '][options][]" placeholder="选项内容">' +
                     '<select name="questions[' + index + '][jump_to][]" class="wpsurvey-jump-select" title="选择此项后跳转到">' +
                     '<option value="">默认顺序</option>' +
