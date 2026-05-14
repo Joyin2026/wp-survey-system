@@ -29,7 +29,14 @@ $type_labels = array(
 get_header();
 ?>
 
-<div class="wpsurvey-single-wrap" style="max-width: 100%; margin: 30px 0; padding: 0;">
+<style>
+/* 独立页面：取消容器宽度限制，适配主题内容区宽度 */
+.wpsurvey-single-wrap .wpsurvey-container {
+    max-width: 100% !important;
+}
+</style>
+
+<div class="wpsurvey-single-wrap" style="margin: 30px 0; padding: 0;">
     <?php include WPSURVEY_PLUGIN_DIR . 'templates/frontend/survey-form.php'; ?>
 </div>
 
