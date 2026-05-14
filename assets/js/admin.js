@@ -24,42 +24,38 @@
          * 初始化悬浮添加按钮
          */
         initFloatingAddBtn: function() {
-            var $builder = $('.wpsurvey-questions-builder');
-            var $floatingBtn = $('#wpsurvey-floating-add-btn');
+            var self = this;
+            var floatingBtn = jQuery("#wpsurvey-floating-add-btn");
+            var builder = jQuery(".wpsurvey-questions-builder");
 
-            if (!$builder.length || !$floatingBtn.length) return;
+            if (!builder.length || !floatingBtn.length) return;
 
-            // 检查是否需要显示浮动按钮（3个题目以上才显示）
             function updateFloatingBtn() {
-                var hasQuestions = $builder.find('.wpsurvey-question-item').length >= 3;
+                var hasQuestions = builder.find(".wpsurvey-question-item").length >= 3;
                 if (hasQuestions) {
-                    $floatingBtn.show().prop('disabled', false).removeClass('processing');
+                    floatingBtn.show();
                 } else {
-                    $floatingBtn.hide();
+                    floatingBtn.hide();
                 }
             }
 
-            // 初始化时检查
             updateFloatingBtn();
 
-            // 点击悬浮按钮：触发顶部的添加题目按钮
-            $floatingBtn.off('click').on('click', function() {
-                if ($floatingBtn.prop('disabled')) return;
-
-                var $panelHeader = $builder.closest('.wpsurvey-panel').find('.wpsurvey-panel-header');
-                var $addBtn = $panelHeader.find('.wpsurvey-btn-add-question');
-
-                if ($addBtn.length) {
-                    // 短暂禁用防重复点击
-                    $floatingBtn.prop('disabled', true).addClass('processing');
-                    $addBtn.trigger('click');
-                    // 500ms后恢复按钮（添加题目完成后）
-                    setTimeout(function() {
-                        $floatingBtn.prop('disabled', false).removeClass('processing');
-                        updateFloatingBtn();
-                    }, 500);
-                }
+            floatingBtn.off("click.wpsurvey").on("click.wpsurvey", function() {
+                if (floatingBtn.hasClass("processing")) return;
+                
+                floatingBtn.addClass("processing");
+                
+                var type = jQuery("#wpsurvey-new-question-type").val() || "radio";
+                self.addQuestion(type);
+                
+                setTimeout(function() {
+                    floatingBtn.removeClass("processing");
+                    updateFloatingBtn();
+                }, 800);
             });
+        },
+        
         },
         
         /**
@@ -319,11 +315,13 @@
                     }
                 },
                 complete: function() {
-                    // 启用按钮
                     $addBtn.prop('disabled', false).removeClass('processing');
-                    // 重新初始化悬浮按钮状态
-                    self.initFloatingAddBtn();
-                }
+                    var floatingBtn = jQuery("#wpsurvey-floating-add-btn");
+                    if (builder.find(".wpsurvey-question-item").length >= 3) {
+                        floatingBtn.show();
+                    } else {
+                        floatingBtn.hide();
+                    }
             });
         },
         

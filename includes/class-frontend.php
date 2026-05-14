@@ -17,16 +17,50 @@ class WP_Survey_Frontend {
         add_shortcode('wpsurvey', array($this, 'handle_shortcode'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
         add_action('template_redirect', array($this, 'handle_survey_url'));
+        
+        // 伪静态规则
+        add_action('init', array($this, 'add_rewrite_rules'));
+        add_filter('query_vars', array($this, 'add_query_vars'));
     }
 
     /**
-     * 获取问卷的独立访问 URL
+     * 注册伪静态 rewrite rules
+     */
+    public function add_rewrite_rules(): void {
+        add_rewrite_rule('^survey/([0-9]+)/?$', 'index.php?wpsurvey_id=$matches[1]', 'top');
+    }
+
+    /**
+     * 注册 query vars，允许 WordPress 识别 wpsurvey_id
+     */
+    public function add_query_vars(array $vars): array {
+        $vars[] = 'wpsurvey_id';
+        return $vars;
+    }
+
+    /**
+     * 插件激活时 flush rewrite rules
+     */
+    public static function activate(): void {
+        add_rewrite_rule('^survey/([0-9]+)/?$', 'index.php?wpsurvey_id=$matches[1]', 'top');
+        flush_rewrite_rules();
+    }
+
+    /**
+     * 插件停用时 flush rewrite rules
+     */
+    public static function deactivate(): void {
+        flush_rewrite_rules();
+    }
+
+    /**
+     * 获取问卷的独立访问 URL（使用伪静态格式）
      *
      * @param int $survey_id 问卷ID
      * @return string
      */
     public static function get_survey_url(int $survey_id): string {
-        return home_url('/?wpsurvey_id=' . $survey_id);
+        return home_url('/survey/' . $survey_id . '/');
     }
 
     public function enqueue_assets() {
@@ -66,11 +100,17 @@ class WP_Survey_Frontend {
     }
 
     /**
-     * 处理独立问卷URL (?wpsurvey_id=N)
+     * 处理独立问卷URL (?wpsurvey_id=N 或 /survey/N/)
      * 当URL包含wpsurvey_id参数时，渲染问卷页面
      */
     public function handle_survey_url(): void {
-        $survey_id = isset($_GET['wpsurvey_id']) ? (int) $_GET['wpsurvey_id'] : 0;
+        // 优先使用 get_query_var（支持伪静态 /survey/N/），同时兼容旧的 ?wpsurvey_id=N
+        $survey_id = get_query_var('wpsurvey_id', 0);
+        if (!$survey_id) {
+            $survey_id = isset($_GET['wpsurvey_id']) ? (int) $_GET['wpsurvey_id'] : 0;
+        }
+        $survey_id = (int) $survey_id;
+        
         if ($survey_id <= 0) {
             return; // 不是问卷URL，正常流程继续
         }

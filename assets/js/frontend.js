@@ -398,14 +398,14 @@
          * 下一题
          */
         nextStep: function() {
-            var $container = $('.wpsurvey-container');
-            var $questions = $container.find('.wpsurvey-question');
+            var $container = jQuery(".wpsurvey-container");
+            var $questions = $container.find(".wpsurvey-question");
             var totalSteps = $questions.length;
 
             if (this.currentStep < totalSteps - 1) {
                 // 检查当前题目是否已答（如果是必填）
                 var $currentQuestion = $questions.eq(this.currentStep);
-                var questionId = $currentQuestion.data('question-id');
+                var questionId = $currentQuestion.data("question-id");
                 var question = this.questions[this.currentStep];
 
                 if (question.required && !this.isQuestionAnswered(question)) {
@@ -413,9 +413,96 @@
                     return;
                 }
 
-                this.currentStep++;
+                // 检查跳转逻辑
+                var jumpTarget = this.getJumpTarget(question);
+                
+                if (jumpTarget !== null) {
+                    // 跳转到指定题目
+                    var targetIndex = this.findQuestionIndex(jumpTarget);
+                    if (targetIndex === -1 || jumpTarget === 0) {
+                        // 跳转到结束 - 提交问卷
+                        this.currentStep = totalSteps;
+                        this.showSubmitStep();
+                        return;
+                    }
+                    this.currentStep = targetIndex;
+                } else {
+                    this.currentStep++;
+                }
                 this.showStep(this.currentStep);
             }
+        },
+        
+        /**
+         * 获取跳转目标
+         * @param {object} question 当前题目
+         * @returns {number|null} 跳转目标question_id，null表示默认顺序，0表示结束问卷
+         */
+        getJumpTarget: function(question) {
+            if (!question.jump_map) return null;
+            
+            var $q = jQuery(".wpsurvey-question[data-question-id=" + question.id + "]");
+            
+            // 单选
+            var $radio = $q.find("input[type=radio]:checked");
+            if ($radio.length) {
+                var idx = $radio.val();
+                if (question.jump_map[idx] !== undefined && question.jump_map[idx] !== null && question.jump_map[idx] !== "" && question.jump_map[idx] !== 0) {
+                    return parseInt(question.jump_map[idx]);
+                }
+            }
+            
+            // 多选: 如果任一选项有跳转，取第一个有跳转的
+            var $checkboxes = $q.find("input[type=checkbox]:checked");
+            if ($checkboxes.length) {
+                var jumpTarget = null;
+                $checkboxes.each(function() {
+                    var idx = jQuery(this).val();
+                    if (question.jump_map[idx] && question.jump_map[idx] !== 0 && !jumpTarget) {
+                        jumpTarget = parseInt(question.jump_map[idx]);
+                    }
+                });
+                return jumpTarget;
+            }
+            
+            // 下拉选择
+            var $select = $q.find("select");
+            if ($select.length && $select.val()) {
+                var idx = $select.val();
+                if (question.jump_map[idx] !== undefined && question.jump_map[idx] !== null && question.jump_map[idx] !== "" && question.jump_map[idx] !== 0) {
+                    return parseInt(question.jump_map[idx]);
+                }
+            }
+            
+            return null;
+        },
+        
+        /**
+         * 根据question_id查找题目索引
+         * @param {number} questionId 题目ID
+         * @returns {number} 题目索引，未找到返回-1
+         */
+        findQuestionIndex: function(questionId) {
+            for (var i = 0; i < this.questions.length; i++) {
+                if (this.questions[i].id == questionId) return i;
+            }
+            return -1;
+        },
+        
+        /**
+         * 显示提交步骤
+         */
+        showSubmitStep: function() {
+            var $container = jQuery(".wpsurvey-container");
+            var $questions = $container.find(".wpsurvey-question");
+            $questions.hide();
+            $container.find(".wpsurvey-buttons").show();
+            $container.find(".wpsurvey-btn-prev").hide();
+            $container.find(".wpsurvey-btn-next").hide();
+            $container.find(".wpsurvey-btn-submit").show();
+            // 更新进度为100%
+            $container.find(".wpsurvey-progress-fill").css("width", "100%");
+            $container.find(".wpsurvey-progress-text").text(this.questions.length + " / " + this.questions.length);
         },
 
         /**

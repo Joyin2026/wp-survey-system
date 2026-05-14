@@ -100,10 +100,11 @@ class WP_Survey_Stats {
         $labels = array();
         $data = array();
         
-        // 构建选项映射
+        // 构建选项映射：使用 sort_order 索引（0, 1, 2...）作为 key，而非 option ID
+        // 因为前端JS提交的是选项索引（0, 1, 2...），stats 的 key 也是索引
         $option_map = array();
-        foreach ($options as $opt) {
-            $option_map[$opt['id']] = $opt['option_text'];
+        foreach ($options as $i => $opt) {
+            $option_map[$i] = $opt['option_text'];
         }
         
         // 如果没有选项，使用统计数据的键
@@ -113,9 +114,8 @@ class WP_Survey_Stats {
         
         foreach ($option_map as $id => $text) {
             $labels[] = is_numeric($id) ? $text : $id;
-            $data[] = isset($stats[is_numeric($id) ? $id : $text]) 
-                ? (int) $stats[is_numeric($id) ? $id : $text] 
-                : 0;
+            // stats 的 key 是 "0", "1" 等字符串形式的索引
+            $data[] = isset($stats[(string)$id]) ? (int) $stats[(string)$id] : 0;
         }
         
         // 计算百分比
@@ -150,15 +150,16 @@ class WP_Survey_Stats {
         $labels = array();
         $data = array();
         
-        // 构建选项映射
+        // 构建选项映射：使用 sort_order 索引（0, 1, 2...）作为 key，而非 option ID
         $option_map = array();
-        foreach ($options as $opt) {
-            $option_map[$opt['id']] = $opt['option_text'];
+        foreach ($options as $i => $opt) {
+            $option_map[$i] = $opt['option_text'];
         }
         
         foreach ($option_map as $id => $text) {
             $labels[] = $text;
-            $data[] = isset($stats[$text]) ? (int) $stats[$text] : 0;
+            // stats 的 key 是 "0", "1" 等字符串形式的索引
+            $data[] = isset($stats[(string)$id]) ? (int) $stats[(string)$id] : 0;
         }
         
         // 计算百分比
