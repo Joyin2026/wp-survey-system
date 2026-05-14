@@ -13,7 +13,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-define('WPSURVEY_VERSION', '1.0.0');
+define('WPSURVEY_VERSION', '1.0.1');
 define('WPSURVEY_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPSURVEY_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WPSURVEY_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -60,6 +60,8 @@ class WP_Survey_System {
     public function activate() {
         $this->db = WP_Survey_DB::get_instance();
         $this->db->create_tables();
+        // 先注册 rewrite rules，再 flush
+        add_rewrite_rule("^survey/([0-9]+)/?$", "index.php?wpsurvey_id=$matches[1]", "top");
         flush_rewrite_rules();
     }
 

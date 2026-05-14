@@ -182,19 +182,19 @@ class WP_Survey_AJAX {
         $questions = $this->survey->db()->get_questions($survey_id);
         
         // 为每个题目加载选项和跳转映射
-        foreach ( as &) {
-            if (in_array([question_type], array(radio, checkbox, select))) {
-                [options] = ->survey->db()->get_options([id]);
+        foreach ($questions as &$q) {
+            if (in_array($q['question_type'], array('radio', 'checkbox', 'select'))) {
+                $q['options'] = $this->survey->db()->get_options($q['id']);
                 // 构建跳转映射: 选项索引 => 跳转目标question_id
-                [jump_map] = array();
-                foreach ([options] as  => ) {
-                    [jump_map][] = [jump_to_question_id] ?? null;
+                $q['jump_map'] = array();
+                foreach ($q['options'] as $oi => $opt) {
+                    $q['jump_map'][$oi] = $opt['jump_to_question_id'] ?? null;
                 }
             }
-            // settings 已在 get_questions() 中解析，无需重复处理
         }
+        unset($q);
 
-        // 获取问卷设置// 获取问卷设置
+        // 获取问卷设置
         $primary_color = !empty($survey['primary_color']) ? $survey['primary_color'] : '#1a73e8';
         $accent_color = !empty($survey['accent_color']) ? $survey['accent_color'] : '#00bcd4';
         $button_color = !empty($survey['button_color']) ? $survey['button_color'] : '#0d47a1';
