@@ -1,0 +1,544 @@
+/**
+ * WP Survey System - 后台管理样式
+ *
+ * @package WP_Survey
+ * @version 1.0.0
+ */
+
+/* ==================== 全局样式 ==================== */
+.wpsurvey-admin-wrap {
+    margin: 20px 20px 0 0;
+    max-width: 1200px;
+}
+
+.wpsurvey-admin-wrap h1 {
+    font-size: 23px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* ==================== 问卷列表页 ==================== */
+.wpsurvey-survey-list {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.wpsurvey-survey-list .tablenav {
+    margin-bottom: 15px;
+}
+
+.wpsurvey-survey-list .widefat {
+    border: 1px solid #e2e4e7;
+}
+
+.wpsurvey-survey-list .widefat th {
+    font-weight: 600;
+    background: #f6f6f6;
+}
+
+.wpsurvey-survey-list .row-actions {
+    color: #72777c;
+}
+
+.wpsurvey-survey-list .row-actions .delete {
+    color: #b32d2e;
+}
+
+.wpsurvey-status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.wpsurvey-status-draft {
+    background: #f0f0f1;
+    color: #50575e;
+}
+
+.wpsurvey-status-published {
+    background: #d4edda;
+    color: #155724;
+}
+
+.wpsurvey-status-closed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* ==================== 问卷编辑页 ==================== */
+.wpsurvey-edit-wrap {
+    display: flex;
+    gap: 20px;
+}
+
+.wpsurvey-edit-main {
+    flex: 1;
+    max-width: 800px;
+}
+
+.wpsurvey-edit-sidebar {
+    width: 300px;
+}
+
+.wpsurvey-panel {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.wpsurvey-panel-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wpsurvey-panel-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.wpsurvey-panel-body {
+    padding: 20px;
+}
+
+/* ==================== 题目构建器 ==================== */
+.wpsurvey-questions-builder {
+    min-height: 200px;
+}
+
+.wpsurvey-question-item {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.wpsurvey-question-header {
+    background: #f0f0f1;
+    padding: 10px 15px;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: move;
+}
+
+.wpsurvey-question-number {
+    font-weight: 600;
+    color: #1a73e8;
+}
+
+.wpsurvey-question-type {
+    font-size: 12px;
+    color: #666;
+    background: #e0e0e0;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+.wpsurvey-btn-delete-question {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #b32d2e;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.wpsurvey-btn-delete-question:hover {
+    background: #f0f0f1;
+}
+
+.wpsurvey-question-body {
+    padding: 15px;
+}
+
+.wpsurvey-form-table {
+    width: 100%;
+}
+
+.wpsurvey-form-table th {
+    text-align: left;
+    font-weight: 500;
+    padding: 10px 10px 10px 0;
+    width: 120px;
+    vertical-align: top;
+    color: #333;
+}
+
+.wpsurvey-form-table td {
+    padding: 5px 0;
+}
+
+.wpsurvey-form-table input[type="text"],
+.wpsurvey-form-table textarea,
+.wpsurvey-form-table select {
+    width: 100%;
+    max-width: 500px;
+}
+
+.wpsurvey-form-table textarea {
+    min-height: 60px;
+}
+
+/* ==================== 选项列表 ==================== */
+.wpsurvey-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.wpsurvey-option-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wpsurvey-option-item input[type="text"] {
+    flex: 1;
+}
+
+.wpsurvey-option-item select {
+    width: 150px;
+}
+
+.wpsurvey-btn-delete-option {
+    background: none;
+    border: none;
+    color: #b32d2e;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.wpsurvey-btn-delete-option:hover {
+    background: #f0f0f1;
+    border-radius: 3px;
+}
+
+/* ==================== 矩阵题设置 ==================== */
+.wpsurvey-matrix-rows,
+.wpsurvey-matrix-columns {
+    margin-bottom: 15px;
+}
+
+.wpsurvey-matrix-rows label,
+.wpsurvey-matrix-columns label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.wpsurvey-matrix-rows textarea,
+.wpsurvey-matrix-columns textarea {
+    width: 100%;
+    min-height: 80px;
+}
+
+/* ==================== 设置面板 ==================== */
+.wpsurvey-settings-group {
+    margin-bottom: 25px;
+}
+
+.wpsurvey-settings-group h3 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.wpsurvey-settings-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.wpsurvey-settings-row label {
+    width: 150px;
+    font-weight: 500;
+}
+
+.wpsurvey-settings-row input[type="text"],
+.wpsurvey-settings-row input[type="number"],
+.wpsurvey-settings-row select,
+.wpsurvey-settings-row textarea {
+    flex: 1;
+    max-width: 300px;
+}
+
+.wpsurvey-color-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wpsurvey-color-picker input[type="color"] {
+    width: 40px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.wpsurvey-color-picker input[type="text"] {
+    width: 100px;
+}
+
+/* ==================== 统计页面 ==================== */
+.wpsurvey-stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.wpsurvey-stat-card {
+    background: linear-gradient(135deg, #1a73e8, #00bcd4);
+    color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.wpsurvey-stat-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+.wpsurvey-stat-card .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.wpsurvey-stat-card .stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+.wpsurvey-question-stats {
+    margin-bottom: 30px;
+}
+
+.wpsurvey-question-stats h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.wpsurvey-chart-container {
+    max-width: 500px;
+    margin: 20px 0;
+}
+
+/* ==================== 提示消息 ==================== */
+.wpsurvey-notice {
+    padding: 12px 15px;
+    background: #fff;
+    border-left: 4px solid #00a0d2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.wpsurvey-notice.success {
+    border-left-color: #46b450;
+}
+
+.wpsurvey-notice.error {
+    border-left-color: #dc3232;
+}
+
+/* ==================== 按钮 ==================== */
+.wpsurvey-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wpsurvey-btn-primary {
+    background: #1a73e8;
+    color: #fff;
+    border: none;
+}
+
+.wpsurvey-btn-primary:hover {
+    background: #1557b0;
+}
+
+.wpsurvey-btn-secondary {
+    background: #f0f0f1;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.wpsurvey-btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+/* ==================== 空状态 ==================== */
+.wpsurvey-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.wpsurvey-empty-state .dashicons {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.wpsurvey-empty-state h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.wpsurvey-empty-state p {
+    margin: 0;
+}
+
+/* ==================== 短代码展示 ==================== */
+.wpsurvey-shortcode-box {
+    background: #f0f0f1;
+    padding: 12px 15px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.wpsurvey-shortcode-box code {
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    border: 1px solid #ddd;
+    word-break: break-all;
+    width: 100%;
+    overflow-wrap: break-word;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.wpsurvey-shortcode-box code:hover {
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+.wpsurvey-shortcode-box code:active {
+    background: #f0f0f1;
+}
+
+.wpsurvey-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    margin: 0 auto;
+}
+
+.wpsurvey-copy-btn.copied {
+    background: #46b450 !important;
+    border-color: #46b450 !important;
+    color: #fff !important;
+}
+
+.wpsurvey-copy-hint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ==================== 悬浮添加按钮 ==================== */
+.wpsurvey-floating-add-btn {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 200px;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #1a73e8, #00bcd4);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(26, 115, 232, 0.4);
+    transition: all 0.3s ease;
+}
+
+.wpsurvey-floating-add-btn:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26, 115, 232, 0.5);
+}
+
+.wpsurvey-floating-add-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.wpsurvey-floating-add-btn.processing,
+.wpsurvey-floating-add-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* 主添加按钮的处理状态 */
+.wpsurvey-btn-add-question.processing {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* ==================== 响应式 ==================== */
+@media (max-width: 782px) {
+    .wpsurvey-edit-wrap {
+        flex-direction: column;
+    }
+
+    .wpsurvey-edit-sidebar {
+        width: 100%;
+    }
+
+    .wpsurvey-form-table th {
+        width: 100%;
+        display: block;
+    }
+
+    .wpsurvey-form-table td {
+        padding-left: 0;
+    }
+
+    .wpsurvey-floating-add-btn {
+        bottom: 150px;
+    }
+}
