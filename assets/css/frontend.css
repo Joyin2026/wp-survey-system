@@ -167,9 +167,15 @@
 }
 
 .wpsurvey-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--wpsurvey-border);
+    border-radius: 8px;
+    font-size: 15px;
     min-height: 120px;
     resize: vertical;
     box-sizing: border-box;
+    transition: border-color 0.2s;
 }
 
 /* ==================== 下拉选择 ==================== */

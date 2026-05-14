@@ -939,17 +939,38 @@ class WP_Survey_DB {
             $answer_value = json_encode($answer_value, JSON_UNESCAPED_UNICODE);
         }
 
-        $result = $wpdb->insert(
-            $this->get_table_name('answers'),
-            array(
-                'response_id' => $response_id,
-                'question_id' => $question_id,
-                'answer_value' => $answer_value,
-            ),
-            array('%d', '%d', '%s')
+        // Upsert：同一 response_id + question_id 只保留一条记录
+        $existing_id = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT id FROM {$this->get_table_name('answers')} WHERE response_id = %d AND question_id = %d LIMIT 1",
+                $response_id,
+                $question_id
+            )
         );
 
-        return $result ? $wpdb->insert_id : false;
+        if ($existing_id > 0) {
+            // 更新已有记录
+            $result = $wpdb->update(
+                $this->get_table_name('answers'),
+                array('answer_value' => $answer_value),
+                array('id' => $existing_id),
+                array('%s'),
+                array('%d')
+            );
+            return $result !== false ? $existing_id : false;
+        } else {
+            // 插入新记录
+            $result = $wpdb->insert(
+                $this->get_table_name('answers'),
+                array(
+                    'response_id' => $response_id,
+                    'question_id' => $question_id,
+                    'answer_value' => $answer_value,
+                ),
+                array('%d', '%d', '%s')
+            );
+            return $result ? $wpdb->insert_id : false;
+        }
     }
 
     /**
@@ -1035,8 +1056,9 @@ class WP_Survey_DB {
             case 'radio':
             case 'select':
                 // 单选题统计
+                // 注意：answer_value 可能是 "0"，不能用 !empty() 判断
                 foreach ($answers as $answer) {
-                    if (!empty($answer)) {
+                    if ($answer !== null && $answer !== '') {
                         $stats[$answer] = isset($stats[$answer]) ? $stats[$answer] + 1 : 1;
                     }
                 }
@@ -1050,7 +1072,7 @@ class WP_Survey_DB {
                         foreach ($values as $v) {
                             $stats[$v] = isset($stats[$v]) ? $stats[$v] + 1 : 1;
                         }
-                    } elseif (!empty($answer)) {
+                    } elseif ($answer !== null && $answer !== '') {
                         $stats[$answer] = isset($stats[$answer]) ? $stats[$answer] + 1 : 1;
                     }
                 }
@@ -1060,9 +1082,11 @@ class WP_Survey_DB {
                 // 评分题统计
                 $ratings = array();
                 foreach ($answers as $answer) {
-                    $rating = (int) $answer;
-                    if ($rating > 0) {
-                        $ratings[] = $rating;
+                    if ($answer !== null && $answer !== '') {
+                        $rating = (int) $answer;
+                        if ($rating > 0) {
+                            $ratings[] = $rating;
+                        }
                     }
                 }
                 if (!empty($ratings)) {
