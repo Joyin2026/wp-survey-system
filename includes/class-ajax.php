@@ -61,6 +61,9 @@ class WP_Survey_AJAX {
         add_action('wp_ajax_wpsurvey_save_answer', array($this, 'handle_save_answer'));
         add_action('wp_ajax_nopriv_wpsurvey_save_answer', array($this, 'handle_save_answer'));
         
+        add_action('wp_ajax_wpsurvey_save_answers_batch', array($this, 'handle_save_answers_batch'));
+        add_action('wp_ajax_nopriv_wpsurvey_save_answers_batch', array($this, 'handle_save_answers_batch'));
+        
         add_action('wp_ajax_wpsurvey_submit', array($this, 'handle_submit'));
         add_action('wp_ajax_nopriv_wpsurvey_submit', array($this, 'handle_submit'));
         
@@ -245,6 +248,39 @@ class WP_Survey_AJAX {
         if (!$result) {
             $this->send_json_error('保存失败');
             return;
+        }
+
+        $this->send_json_success(array('saved' => true));
+    }
+
+    /**
+     * 批量保存答案（提交前兜底保存）
+     */
+    public function handle_save_answers_batch(): void {
+        if (!$this->verify_nonce('save_answers_batch')) {
+            return;
+        }
+
+        $response_id = (int) sanitize_text_field($_POST['response_id'] ?? 0);
+        $answers_json = sanitize_text_field($_POST['answers'] ?? '');
+
+        if ($response_id <= 0) {
+            $this->send_json_error('参数错误');
+            return;
+        }
+
+        $answers = json_decode($answers_json, true);
+        if (!is_array($answers)) {
+            $this->send_json_error('答案格式错误');
+            return;
+        }
+
+        foreach ($answers as $item) {
+            $question_id = (int) ($item['question_id'] ?? 0);
+            $answer_value = $item['answer_value'] ?? '';
+            if ($question_id > 0) {
+                $this->survey->db()->save_answer($response_id, $question_id, $answer_value);
+            }
         }
 
         $this->send_json_success(array('saved' => true));

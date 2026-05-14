@@ -109,11 +109,16 @@
                 self.updateNextButtonState();
             });
 
-            // 文本输入
+            // 文本输入 - 防抖保存
+            var textSaveTimer = null;
             $(document).on('input', '.wpsurvey-input, .wpsurvey-textarea', function() {
                 var questionId = $(this).closest('.wpsurvey-question').data('question-id');
                 self.answeredQuestions[questionId] = $(this).val();
                 self.updateNextButtonState();
+                clearTimeout(textSaveTimer);
+                textSaveTimer = setTimeout(function() {
+                    self.saveAnswer(questionId);
+                }, 500);
             });
 
             // 评分题
@@ -129,6 +134,7 @@
                 $item.closest('.wpsurvey-question').find('.wpsurvey-rating-input').val(value);
                 self.answeredQuestions[questionId] = value;
                 self.updateNextButtonState();
+                self.saveAnswer(questionId);
             });
 
             // 矩阵题
@@ -147,6 +153,7 @@
 
                 self.answeredQuestions[questionId] = answers;
                 self.updateNextButtonState();
+                self.saveAnswer(questionId);
             });
         },
 
@@ -679,36 +686,66 @@
                 return;
             }
 
-            $.ajax({
-                url: wpsurvey.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'wpsurvey_submit',
-                    response_id: self.responseId,
-                    nonce: wpsurvey.nonce
-                },
-                beforeSend: function() {
-                    $('.wpsurvey-btn-submit').prop('disabled', true).text('提交中...');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        var $container = $('.wpsurvey-container');
-                        $container.find('.wpsurvey-card').html(
-                            '<div class="wpsurvey-thankyou">' +
-                            '<h2>提交成功</h2>' +
-                            '<p>' + (response.data.message || '感谢您的参与！') + '</p>' +
-                            '</div>'
-                        );
-                    } else {
-                        alert(response.data.message || wpsurvey.i18n.submit_error);
-                        $('.wpsurvey-btn-submit').prop('disabled', false).text('提交问卷');
-                    }
-                },
-                error: function() {
-                    alert(wpsurvey.i18n.submit_error);
-                    $('.wpsurvey-btn-submit').prop('disabled', false).text('提交问卷');
+            // 提交前：先把所有 answeredQuestions 中的答案通过批量接口保存
+            var pendingSaves = [];
+            $.each(self.answeredQuestions, function(qid, value) {
+                if (value !== undefined && value !== null && value !== '') {
+                    pendingSaves.push({ question_id: parseInt(qid), answer_value: value });
                 }
             });
+
+            // 先批量保存所有答案，再提交
+            function doSubmit() {
+                $.ajax({
+                    url: wpsurvey.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'wpsurvey_submit',
+                        response_id: self.responseId,
+                        nonce: wpsurvey.nonce
+                    },
+                    beforeSend: function() {
+                        $('.wpsurvey-btn-submit').prop('disabled', true).text('提交中...');
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            var $container = $('.wpsurvey-container');
+                            $container.find('.wpsurvey-card').html(
+                                '<div class="wpsurvey-thankyou">' +
+                                '<h2>提交成功</h2>' +
+                                '<p>' + (response.data.message || '感谢您的参与！') + '</p>' +
+                                '</div>'
+                            );
+                        } else {
+                            alert(response.data.message || wpsurvey.i18n.submit_error);
+                            $('.wpsurvey-btn-submit').prop('disabled', false).text('提交问卷');
+                        }
+                    },
+                    error: function() {
+                        alert(wpsurvey.i18n.submit_error);
+                        $('.wpsurvey-btn-submit').prop('disabled', false).text('提交问卷');
+                    }
+                });
+            }
+
+            // 批量保存答案
+            if (pendingSaves.length > 0) {
+                $.ajax({
+                    url: wpsurvey.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'wpsurvey_save_answers_batch',
+                        response_id: self.responseId,
+                        answers: JSON.stringify(pendingSaves),
+                        nonce: wpsurvey.nonce
+                    },
+                    complete: function() {
+                        doSubmit();
+                    }
+                });
+            } else {
+                doSubmit();
+            }
         }
     };
 
