@@ -606,11 +606,23 @@ class WP_Survey_DB {
 
         $data = wp_parse_args($data, $defaults);
 
+        // 修复: jump_to_question_id 为 null 时不能使用 %d 格式
+        $formats = array('%d', '%s', '%d');
+        if ($data['jump_to_question_id'] === null) {
+            $formats[] = null;  // WordPress 会自动处理 NULL
+        } else {
+            $formats[] = '%d';
+        }
+
+
+
         $result = $wpdb->insert(
             $this->get_table_name('options'),
             $data,
-            array('%d', '%s', '%d', '%d')
+            $formats
         );
+
+
 
         if ($result === false) {
             return false;
@@ -641,11 +653,23 @@ class WP_Survey_DB {
             $data['jump_to_question_id'] = null;
         }
 
+        // 修复: 显式构建 format 数组，正确处理 NULL 值
+        $formats = array();
+        foreach ($data as $key => $value) {
+            if ($value === null) {
+                $formats[] = null;  // WordPress 会将 null 作为 SQL NULL 处理
+            } elseif (in_array($key, array('sort_order', 'jump_to_question_id'))) {
+                $formats[] = '%d';
+            } else {
+                $formats[] = '%s';
+            }
+        }
+
         $result = $wpdb->update(
             $this->get_table_name('options'),
             $data,
             array('id' => $id),
-            null,
+            $formats,
             array('%d')
         );
 

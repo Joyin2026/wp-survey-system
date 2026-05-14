@@ -398,6 +398,8 @@ class WP_Survey {
                 $existing_options = $this->db->get_options($question_id);
                 $existing_option_ids = wp_list_pluck($existing_options, 'id');
                 
+
+                
                 if (!empty($options)) {
                     $new_option_ids = array();
                     $opt_order = 0;
@@ -407,6 +409,7 @@ class WP_Survey {
                         $opt_text = isset($opt_data['option_text']) ? trim($opt_data['option_text']) : '';
                         
                         if (empty($opt_text)) {
+                            
                             continue; // 跳过空选项
                         }
                         
@@ -419,6 +422,7 @@ class WP_Survey {
                                 'sort_order' => $opt_order,
                                 'jump_to_question_id' => $jump_target,
                             ));
+                            
                             $new_option_ids[] = $opt_id;
                         } else {
                             // 创建新选项
@@ -428,6 +432,7 @@ class WP_Survey {
                                 'sort_order' => $opt_order,
                                 'jump_to_question_id' => $jump_target,
                             ));
+                            
                             if ($new_id) {
                                 $new_option_ids[] = $new_id;
                             }
@@ -436,8 +441,10 @@ class WP_Survey {
                     }
                     
                     // 删除不在新数据中的旧选项
+                    
                     foreach ($existing_option_ids as $existing_opt_id) {
                         if (!in_array($existing_opt_id, $new_option_ids)) {
+                            
                             $this->db->delete_option($existing_opt_id);
                         }
                     }

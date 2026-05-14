@@ -202,7 +202,9 @@ class WP_Survey_Admin {
                 }
                 $question['options_with_jumps'][] = $option;
             }
+            unset($option);  // 修复: 断开引用，避免后续 foreach 覆盖最后一个元素
         }
+        unset($question);  // 修复: 断开外层引用
 
         include WPSURVEY_PLUGIN_DIR . 'templates/admin/survey-edit.php';
     }
@@ -314,9 +316,11 @@ class WP_Survey_Admin {
                 
                 // 以选项文本数组的长度为基准，构建结构化选项数组
                 $count = count($option_texts);
+
                 for ($i = 0; $i < $count; $i++) {
                     $text = trim($option_texts[$i]);
                     if ($text === '') {
+    
                         continue; // 跳过空选项
                     }
                     
@@ -325,6 +329,8 @@ class WP_Survey_Admin {
                     if (isset($jump_targets[$i]) && $jump_targets[$i] !== '' && $jump_targets[$i] !== '0') {
                         $jump = (int) $jump_targets[$i];
                     }
+                    
+
                     
                     $question['options'][] = array(
                         'id' => $opt_id,

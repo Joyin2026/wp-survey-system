@@ -17,6 +17,7 @@
             this.bindEvents();
             this.loadJumpTargets();
             this.initFloatingAddBtn();
+            
         },
         
         /**
