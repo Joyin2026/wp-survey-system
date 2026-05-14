@@ -203,7 +203,7 @@ $type_labels = array(
                                 <tr>
                                     <td><?php echo esc_html($response['id']); ?></td>
                                     <td><?php echo esc_html($response['user_id'] ? '用户 #' . $response['user_id'] : '访客'); ?></td>
-                                    <td><?php echo esc_html($response['ip_address']); ?></td>
+                                    <td style="word-break: break-all; max-width: 200px;"><?php echo esc_html($response['ip_display'] ?? $response['ip_address']); ?></td>
                                     <td><?php echo esc_html($response['started_at']); ?></td>
                                     <td><?php echo esc_html($response['submitted_at'] ?: '<em>未提交</em>'); ?></td>
                                 </tr>

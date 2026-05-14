@@ -361,7 +361,10 @@ class WP_Survey_Stats {
             } else {
                 $response['user_name'] = '访客';
             }
+            // 补充IP归属地
+            $response['ip_display'] = $this->format_ip_display($response['ip_address'] ?? '');
         }
+        unset($response);
         
         return $responses;
     }
@@ -457,5 +460,54 @@ class WP_Survey_Stats {
         
         // 取前50个
         return array_slice($word_counts, 0, 50, true);
+    }
+
+    /**
+     * 格式化IP地址显示：IPv4/IPv6 省份.城市
+     * 使用 ip-api.com 免费接口查询归属地，带瞬态缓存
+     *
+     * @param string $ip IP地址
+     * @return string 格式化后的显示文本
+     */
+    public function format_ip_display(string $ip): string {
+        if (empty($ip)) {
+            return '';
+        }
+
+        // 判断IP版本
+        $version = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ? 'IPv4' : 'IPv6';
+
+        // 查缓存
+        $cache_key = 'wpsurvey_ip_' . md5($ip);
+        $cached = get_transient($cache_key);
+        if ($cached !== false) {
+            return $version . ' ' . $cached;
+        }
+
+        // 调用 ip-api.com 查询（HTTP免费接口，限45次/分钟）
+        $response = wp_remote_get('http://ip-api.com/json/' . urlencode($ip) . '?lang=zh-CN', array(
+            'timeout' => 3,
+        ));
+
+        $location = '';
+        if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+            $body = json_decode(wp_remote_retrieve_body($response), true);
+            if (!empty($body['status']) && $body['status'] === 'success') {
+                $province = $body['regionName'] ?? '';
+                $city = $body['city'] ?? '';
+                if ($province && $city && $province !== $city) {
+                    $location = $province . '.' . $city;
+                } elseif ($city) {
+                    $location = $city;
+                } elseif ($province) {
+                    $location = $province;
+                }
+            }
+        }
+
+        // 缓存7天
+        set_transient($cache_key, $location, 7 * DAY_IN_SECONDS);
+
+        return $version . ($location ? ' ' . $location : '');
     }
 }
