@@ -394,32 +394,38 @@ class WP_Survey {
                     'settings' => $settings,
                 ));
 
-                // 更新选项：先获取并删除旧选项，再创建新选项
+                // 更新选项：先获取旧选项
                 $existing_options = $this->db->get_options($question_id);
-                foreach ($existing_options as $opt) {
-                    $this->db->delete_option($opt['id']);
-                }
+                
+                // 只有当新选项数据非空时才替换，否则保留旧选项
+                if (!empty($options)) {
+                    // 删除旧选项
+                    foreach ($existing_options as $opt) {
+                        $this->db->delete_option($opt['id']);
+                    }
 
-                // 创建新选项
-                $opt_order = 0;
-                foreach ($options as $opt_idx => $opt_text) {
-                    $opt_text = trim($opt_text);
-                    if (!empty($opt_text)) {
-                        $jump_target = null;
-                        if (isset($q_data['jump_options'][$opt_idx])) {
-                            $jump_target = $q_data['jump_options'][$opt_idx];
-                            if ($jump_target === '' || $jump_target === 0) {
-                                $jump_target = null; // "结束问卷" 或 "默认" 转为 null
+                    // 创建新选项
+                    $opt_order = 0;
+                    foreach ($options as $opt_idx => $opt_text) {
+                        $opt_text = trim($opt_text);
+                        if (!empty($opt_text)) {
+                            $jump_target = null;
+                            if (isset($q_data['jump_options'][$opt_idx])) {
+                                $jump_target = $q_data['jump_options'][$opt_idx];
+                                if ($jump_target === '' || $jump_target === 0) {
+                                    $jump_target = null; // "结束问卷" 或 "默认" 转为 null
+                                }
                             }
+                            $this->db->create_option(array(
+                                'question_id' => $question_id,
+                                'option_text' => $opt_text,
+                                'sort_order' => $opt_order++,
+                                'jump_to_question_id' => $jump_target,
+                            ));
                         }
-                        $this->db->create_option(array(
-                            'question_id' => $question_id,
-                            'option_text' => $opt_text,
-                            'sort_order' => $opt_order++,
-                            'jump_to_question_id' => $jump_target,
-                        ));
                     }
                 }
+                // 如果新选项为空且旧选项存在，保留旧选项不变
             } else {
                 // 创建新题目
                 $new_question_id = $this->db->create_question(array(

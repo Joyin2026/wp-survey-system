@@ -130,23 +130,41 @@
             });
             
             // 验证选项数组一致性：确保每个题目的 options[] 和 jump_to[] 长度相同
-            // 这是一个安全措施，防止某些边缘情况下数组长度不一致导致数据错位
+            // 同时确保每个 option-item 都包含完整的 input + select + delete button
             SurveyBuilder.validateOptionArrays = function($questionItem) {
                 if (!$questionItem) {
                     $questionItem = $('.wpsurvey-question-item');
                 }
                 $questionItem.each(function() {
                     var $q = $(this);
+                    var index = $q.data('index');
                     var $options = $q.find('.wpsurvey-option-item');
-                    var $inputs = $options.find('input[name$="[options][]"]');
-                    var $selects = $options.find('select[name$="[jump_to][]"]');
                     
-                    // 确保 options 和 jump_to 数量一致
-                    // 如果不一致，以 options 的数量为准，移除多余的 jump_to
-                    if ($inputs.length !== $selects.length) {
-                        console.warn('WPSurvey: 选项数组长度不一致，已自动修复');
-                        $selects.slice($inputs.length).remove();
-                    }
+                    $options.each(function(optIdx) {
+                        var $item = $(this);
+                        
+                        // 确保 input 存在
+                        var $input = $item.find('input[name$="[options][]"]');
+                        if (!$input.length) {
+                            $item.prepend('<input type="text" name="questions[' + index + '][options][]" placeholder="选项内容">');
+                        }
+                        
+                        // 确保 select 存在
+                        var $select = $item.find('select[name$="[jump_to][]"]');
+                        if (!$select.length) {
+                            var selectHtml = '<select name="questions[' + index + '][jump_to][]" class="wpsurvey-jump-select" title="选择此项后跳转到">' +
+                                '<option value="">默认顺序</option>' +
+                                '<option value="0">结束问卷</option>' +
+                                '</select>';
+                            $item.append(selectHtml);
+                        }
+                        
+                        // 确保 delete 按钮存在
+                        var $deleteBtn = $item.find('.wpsurvey-btn-delete-option');
+                        if (!$deleteBtn.length) {
+                            $item.append('<button type="button" class="wpsurvey-btn-delete-option"><span class="dashicons dashicons-no"></span></button>');
+                        }
+                    });
                 });
             };
             

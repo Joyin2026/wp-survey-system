@@ -313,26 +313,18 @@ class WP_Survey_Admin {
                 // 兼容 jump_to[] 和 jump_to 两种字段名
                 $jump_targets = isset($q_data['jump_to']) ? (array) $q_data['jump_to'] : array();
                 
-                // 关键修复：确保 options 和 jump_to 长度严格一致
-                // 使用 min() 取较短的长度，然后截断
-                $min_count = min(count($option_texts), count($jump_targets));
-                $option_texts = array_slice($option_texts, 0, $min_count);
-                $jump_targets = array_slice($jump_targets, 0, $min_count);
+                // 修复：以 options 的长度为准，jump_to 短的补 null，长的截断
+                // 不再用 min() 截断，避免删除选项后数据丢失
+                $option_texts = array_values(array_filter($option_texts, function($v) {
+                    return trim($v) !== '';
+                }));
                 
-                // 同时遍历 option_texts 和 jump_targets，保持严格的一对一对应
-                // 使用 array_values 确保索引从 0 开始连续，避免删除选项后键错位
-                $option_texts = array_values($option_texts);
-                $jump_targets = array_values($jump_targets);
-                
+                // 遍历 options，按其长度构建 jump_options
                 foreach ($option_texts as $i => $opt_text) {
-                    $opt_text = trim(sanitize_text_field($opt_text));
-                    // 只跳过真正为空的选项（不是空格，而是完全没有内容）
-                    if (strlen($opt_text) > 0) {
-                        $question['options'][] = $opt_text;
-                        $question['jump_options'][] = isset($jump_targets[$i]) && $jump_targets[$i] !== ''
-                            ? (int) $jump_targets[$i]
-                            : null;
-                    }
+                    $question['options'][] = trim(sanitize_text_field($opt_text));
+                    $question['jump_options'][] = isset($jump_targets[$i]) && $jump_targets[$i] !== ''
+                        ? (int) $jump_targets[$i]
+                        : null;
                 }
                 
                 // 如果所有选项都被过滤掉了，至少保留一个空选项以确保题目有效
