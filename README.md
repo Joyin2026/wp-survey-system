@@ -130,7 +130,7 @@ wp-survey-system/
 
 ## 作者
 
-瑾煜 - https://yingtux.net
+瑾煜 - https://www.sjinyu.com
 
 ## 许可证
 
