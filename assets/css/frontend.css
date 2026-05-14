@@ -158,6 +158,7 @@
     border-radius: 8px;
     font-size: 15px;
     transition: border-color 0.2s;
+    box-sizing: border-box;
 }
 
 .wpsurvey-input:focus {
@@ -168,6 +169,7 @@
 .wpsurvey-textarea {
     min-height: 120px;
     resize: vertical;
+    box-sizing: border-box;
 }
 
 /* ==================== 下拉选择 ==================== */

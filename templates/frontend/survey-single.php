@@ -29,7 +29,7 @@ $type_labels = array(
 get_header();
 ?>
 
-<div class="wpsurvey-single-wrap" style="max-width: 720px; margin: 30px auto; padding: 0 15px;">
+<div class="wpsurvey-single-wrap" style="max-width: 100%; margin: 30px 0; padding: 0;">
     <?php include WPSURVEY_PLUGIN_DIR . 'templates/frontend/survey-form.php'; ?>
 </div>
 
