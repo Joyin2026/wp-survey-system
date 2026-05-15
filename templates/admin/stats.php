@@ -140,7 +140,7 @@ $type_labels = array(
                             <?php endif; ?>
                             
                         <?php elseif ($question['question_type'] === 'matrix'): ?>
-                            <!-- 矩阵题图表 -->
+<!-- 矩阵题图表 -->
                             <?php if (!empty($chart_data['labels'])): ?>
                                 <div class="wpsurvey-chart-container" style="max-width: 700px;">
                                     <canvas id="chart-<?php echo esc_attr($question['id']); ?>" 
@@ -242,23 +242,24 @@ $type_labels = array(
                     };
                     
                     if (chartType === 'pie' || chartType === 'doughnut') {
-                        var data = JSON.parse($(this).data('data'));
-                        var colors = JSON.parse($(this).data('colors'));
+                        var data = $(this).data('data');
+                        var colors = $(this).data('colors');
                         config.data.datasets = [{
-                            data: data,
-                            backgroundColor: colors,
+                            data: typeof data === 'string' ? JSON.parse(data) : data,
+                            backgroundColor: typeof colors === 'string' ? JSON.parse(colors) : colors,
                         }];
                     } else if (chartType === 'bar') {
                         var datasets = $(this).data('datasets');
                         if (datasets) {
-                            config.data.datasets = JSON.parse(datasets);
+                            // jQuery .data() 自动解析JSON，需要判断类型
+                            config.data.datasets = typeof datasets === 'string' ? JSON.parse(datasets) : datasets;
                         } else {
-                            var data = JSON.parse($(this).data('data'));
-                            var colors = JSON.parse($(this).data('colors'));
+                            var data = $(this).data('data');
+                            var colors = $(this).data('colors');
                             config.data.datasets = [{
                                 label: '数量',
-                                data: data,
-                                backgroundColor: colors,
+                                data: typeof data === 'string' ? JSON.parse(data) : data,
+                                backgroundColor: typeof colors === 'string' ? JSON.parse(colors) : colors,
                             }];
                         }
                     }
