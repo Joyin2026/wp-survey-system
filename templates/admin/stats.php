@@ -159,7 +159,7 @@ $type_labels = array(
                                 <div style="max-height: 300px; overflow-y: auto;">
                                     <ul style="list-style: none; margin: 0; padding: 0;">
                                         <?php foreach (array_slice($q_stats, 0, 50) as $answer): ?>
-                                            <?php if (!empty($answer)): ?>
+                                            <?php if ($answer !== null && $answer !== ''): ?>
                                                 <li style="padding: 8px 0; border-bottom: 1px solid #eee;">
                                                     <?php echo esc_html($answer); ?>
                                                 </li>

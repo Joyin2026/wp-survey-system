@@ -421,6 +421,10 @@ class WP_Survey_Admin {
             foreach ($questions as &$q) {
                 $q['options'] = $this->survey->db()->get_options($q['id']);
                 $q['stats'] = $this->survey->db()->get_question_stats($q['id'], $q['question_type']);
+                // 矩阵题：rows/columns 存在 settings 里，传入 options 供图表渲染
+                if ($q['question_type'] === 'matrix' && !empty($q['settings'])) {
+                    $q['options'] = $q['settings'];
+                }
             }
             $responses = $this->survey->db()->get_responses($survey_id, array('limit' => 100));
 

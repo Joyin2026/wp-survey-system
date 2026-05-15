@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // 变量已由 class-frontend.php handle_survey_url() 注入
-// $survey, $questions, $display_mode, $response_id, $primary_color, $accent_color, $button_color, $custom_css
+// , , , , , , , 
 
 $type_labels = array(
     'radio' => '单选题',
