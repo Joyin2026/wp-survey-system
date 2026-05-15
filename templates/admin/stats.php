@@ -191,9 +191,9 @@ $type_labels = array(
                     <table class="widefat fixed">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>用户</th>
-                                <th>IP地址</th>
+                                <th style="width:50px;">ID</th>
+                                <th style="width:120px;">用户</th>
+                                <th style="width:280px;">IP地址</th>
                                 <th>开始时间</th>
                                 <th>提交时间</th>
                             </tr>
@@ -202,8 +202,15 @@ $type_labels = array(
                             <?php foreach ($responses as $response): ?>
                                 <tr>
                                     <td><?php echo esc_html($response['id']); ?></td>
-                                    <td><?php echo esc_html($response['user_id'] ? '用户 #' . $response['user_id'] : '访客'); ?></td>
-                                    <td style="word-break: break-all; max-width: 200px;"><?php echo esc_html($response['ip_display'] ?? $response['ip_address']); ?></td>
+                                    <td><?php
+                                        if ($response['user_id']) {
+                                            $u = get_userdata($response['user_id']);
+                                            echo esc_html($u ? $u->user_login : '用户 #' . $response['user_id']);
+                                        } else {
+                                            echo '访客';
+                                        }
+                                    ?></td>
+                                    <td style="white-space: nowrap;"><?php echo esc_html($response['ip_display'] ?? $response['ip_address']); ?></td>
                                     <td><?php echo esc_html($response['started_at']); ?></td>
                                     <td><?php echo esc_html($response['submitted_at'] ?: '<em>未提交</em>'); ?></td>
                                 </tr>
