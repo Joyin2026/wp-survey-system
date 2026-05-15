@@ -66,7 +66,7 @@ class WP_Survey_Frontend {
     public function enqueue_assets() {
         wp_enqueue_script('jquery');
         wp_enqueue_style('wpsurvey-frontend', WPSURVEY_PLUGIN_URL . 'assets/css/frontend.css', array(), WPSURVEY_VERSION);
-        wp_enqueue_script('wpsurvey-frontend', WPSURVEY_PLUGIN_URL . 'assets/js/frontend.js', array('jquery'), WPSURVEY_VERSION, true);
+        wp_enqueue_script('wpsurvey-frontend', WPSURVEY_PLUGIN_URL . 'assets/js/frontend.js', array('jquery'), WPSURVEY_VERSION, false);
         wp_localize_script('wpsurvey-frontend', 'wpsurvey', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wpsurvey_frontend_nonce'),
