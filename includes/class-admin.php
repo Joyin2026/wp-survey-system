@@ -99,6 +99,18 @@ class WP_Survey_Admin {
             true
         );
 
+        // 为统计页面加载 Chart.js
+        if (strpos($hook_suffix, 'wpsurvey-stats') !== false) {
+            $chart_url = WP_Survey_Settings::get_instance()->get_chart_js_url();
+            wp_enqueue_script(
+                'chartjs',
+                $chart_url,
+                array(),
+                '4.4.1',
+                true
+            );
+        }
+
         wp_localize_script('wpsurvey-admin', 'wpsurvey_admin', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wpsurvey_admin_nonce'),
