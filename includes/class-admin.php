@@ -107,7 +107,7 @@ class WP_Survey_Admin {
                 $chart_url,
                 array(),
                 '4.4.1',
-                true
+                false
             );
         }
 
