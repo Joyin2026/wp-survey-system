@@ -406,7 +406,7 @@ class WP_Survey_Stats {
         $cache_key = 'wpsurvey_ip_' . md5($ip);
         $cached = get_transient($cache_key);
         if ($cached !== false) {
-            return $version . ' ' . $cached;
+            return $cached ? $version . ' ' . $cached : $version;
         }
 
         $location = '';
@@ -445,7 +445,7 @@ class WP_Survey_Stats {
 
         set_transient($cache_key, $location, 7 * DAY_IN_SECONDS);
 
-        return $version . ($location ? ' ' . $location : '');
+        return $location ? $version . ' ' . $location : $version;
     }
 
     /**
