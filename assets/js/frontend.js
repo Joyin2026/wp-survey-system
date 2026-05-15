@@ -495,6 +495,46 @@
             }
             return -1;
         },
+
+        /**
+         * 获取答题路径上可达的题目索引集合
+         * 从第一题开始，根据已答选项的跳转逻辑，推导出哪些题目会被经过
+         * @returns {Set} 可达题目索引集合
+         */
+        getReachableQuestions: function() {
+            var reachable = new Set();
+            var visited = new Set();
+            var self = this;
+            
+            function traverse(index) {
+                if (index < 0 || index >= self.questions.length) return;
+                if (visited.has(index)) return;
+                visited.add(index);
+                reachable.add(index);
+                
+                var question = self.questions[index];
+                var jumpTarget = self.getJumpTarget(question);
+                
+                if (jumpTarget === 0) {
+                    // 跳转到结束，不再继续
+                    return;
+                } else if (jumpTarget !== null) {
+                    // 有跳转目标，跳到指定题目
+                    var targetIndex = self.findQuestionIndex(jumpTarget);
+                    if (targetIndex !== -1) {
+                        traverse(targetIndex);
+                    }
+                } else {
+                    // 默认顺序，下一题
+                    traverse(index + 1);
+                }
+            }
+            
+            // 从第一题开始遍历
+            traverse(0);
+            return reachable;
+        },
+,
         
         /**
          * 显示提交步骤
@@ -588,10 +628,11 @@
                     $btnSubmit.hide();
                 }
             } else {
-                // 全部模式：检查是否所有必填题都已作答
+                // 全部模式：检查是否所有必填题都已作答（仅检查可达题目）
+                var reachable = this.getReachableQuestions();
                 var allAnswered = true;
                 $.each(this.questions, function(i, q) {
-                    if (q.required && !this.isQuestionAnswered(q)) {
+                    if (reachable.has(i) && q.required && !this.isQuestionAnswered(q)) {
                         allAnswered = false;
                         return false;
                     }
@@ -673,10 +714,11 @@
         submitSurvey: function() {
             var self = this;
 
-            // 检查所有必填题
+            // 检查必填题（仅检查答题路径上可达的题目）
+            var reachable = this.getReachableQuestions();
             var unanswered = [];
             $.each(this.questions, function(i, q) {
-                if (q.required && !this.isQuestionAnswered(q)) {
+                if (reachable.has(i) && q.required && !this.isQuestionAnswered(q)) {
                     unanswered.push(i + 1);
                 }
             }.bind(this));
