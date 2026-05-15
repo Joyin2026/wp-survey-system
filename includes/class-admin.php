@@ -511,6 +511,7 @@ class WP_Survey_Admin {
         }
 
         $current_settings = WP_Survey_Settings::get_instance()->get_settings();
+        $cdn_options = WP_Survey_Settings::get_instance()->get_cdn_options();
         include WPSURVEY_PLUGIN_DIR . 'templates/admin/settings.php';
     }
 
