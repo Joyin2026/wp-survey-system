@@ -474,18 +474,15 @@
                 },
                 success: function(response) {
                     if (response.success && response.data.targets) {
-                        var currentOptions = {};
-                        
+                        // 先保存每个select当前选中的值（按顺序索引，不用.index()）
+                        var currentValues = [];
                         $selects.each(function() {
-                            var currentVal = $(this).val();
-                            if (currentVal) {
-                                currentOptions[$(this).index()] = currentVal;
-                            }
+                            currentValues.push($(this).val() || '');
                         });
                         
-                        $selects.each(function() {
+                        $selects.each(function(selectIdx) {
                             var $select = $(this);
-                            var idx = $select.index();
+                            var savedVal = currentValues[selectIdx];
                             
                             // 保留前两个选项（默认和结束）
                             var existingOptions = $select.find('option').slice(0, 2).clone();
@@ -504,8 +501,8 @@
                             });
                             
                             // 恢复已选值
-                            if (currentOptions[idx]) {
-                                $select.val(currentOptions[idx]);
+                            if (savedVal) {
+                                $select.val(savedVal);
                             }
                         });
                     }
