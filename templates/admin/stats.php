@@ -223,7 +223,8 @@ $type_labels = array(
                     var ctx = canvas.getContext('2d');
                     
                     var chartType = $(this).data('chart-type');
-                    var labels = JSON.parse($(this).data('labels'));
+                    var labelsRaw = $(this).data('labels');
+                    var labels = typeof labelsRaw === 'string' ? JSON.parse(labelsRaw) : labelsRaw;
                     
                     var config = {
                         type: chartType === 'pie' ? 'doughnut' : chartType,
