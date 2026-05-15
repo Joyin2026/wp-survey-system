@@ -91,34 +91,25 @@ class WP_Survey_Stats {
 
     /**
      * 格式化单选题数据
-     *
-     * @param array $stats 原始统计
-     * @param array $options 选项列表
-     * @return array
      */
     private function format_single_choice_data(array $stats, array $options): array {
         $labels = array();
         $data = array();
         
-        // 构建选项映射：使用 sort_order 索引（0, 1, 2...）作为 key，而非 option ID
-        // 因为前端JS提交的是选项索引（0, 1, 2...），stats 的 key 也是索引
         $option_map = array();
         foreach ($options as $i => $opt) {
             $option_map[$i] = $opt['option_text'];
         }
         
-        // 如果没有选项，使用统计数据的键
         if (empty($option_map)) {
             $option_map = $stats;
         }
         
         foreach ($option_map as $id => $text) {
             $labels[] = is_numeric($id) ? $text : $id;
-            // stats 的 key 是 "0", "1" 等字符串形式的索引
             $data[] = isset($stats[(string)$id]) ? (int) $stats[(string)$id] : 0;
         }
         
-        // 计算百分比
         $total = array_sum($data);
         $percentages = array();
         if ($total > 0) {
@@ -128,7 +119,7 @@ class WP_Survey_Stats {
         }
         
         return array(
-            'type' => 'pie', // 或 'doughnut'
+            'type' => 'pie',
             'labels' => $labels,
             'datasets' => array(array(
                 'data' => $data,
@@ -141,16 +132,11 @@ class WP_Survey_Stats {
 
     /**
      * 格式化多选题数据
-     *
-     * @param array $stats 原始统计
-     * @param array $options 选项列表
-     * @return array
      */
     private function format_multiple_choice_data(array $stats, array $options): array {
         $labels = array();
         $data = array();
         
-        // 构建选项映射：使用 sort_order 索引（0, 1, 2...）作为 key，而非 option ID
         $option_map = array();
         foreach ($options as $i => $opt) {
             $option_map[$i] = $opt['option_text'];
@@ -158,11 +144,9 @@ class WP_Survey_Stats {
         
         foreach ($option_map as $id => $text) {
             $labels[] = $text;
-            // stats 的 key 是 "0", "1" 等字符串形式的索引
             $data[] = isset($stats[(string)$id]) ? (int) $stats[(string)$id] : 0;
         }
         
-        // 计算百分比
         $total = array_sum($data);
         $percentages = array();
         if ($total > 0) {
@@ -186,9 +170,6 @@ class WP_Survey_Stats {
 
     /**
      * 格式化评分题数据
-     *
-     * @param array $stats 原始统计
-     * @return array
      */
     private function format_rating_data(array $stats): array {
         if (empty($stats['ratings'])) {
@@ -203,7 +184,6 @@ class WP_Survey_Stats {
         $ratings = $stats['ratings'];
         $max_score = $stats['max'] ?? 5;
         
-        // 统计各分值的数量
         $counts = array();
         for ($i = 1; $i <= $max_score; $i++) {
             $counts[$i] = 0;
@@ -242,10 +222,6 @@ class WP_Survey_Stats {
 
     /**
      * 格式化矩阵题数据
-     *
-     * @param array $stats 原始统计
-     * @param array $options 行列设置
-     * @return array
      */
     private function format_matrix_data(array $stats, array $options): array {
         $rows = $options['rows'] ?? array();
@@ -254,7 +230,6 @@ class WP_Survey_Stats {
         $labels = $rows;
         $datasets = array();
         
-        // 为每一列创建一个数据集
         foreach ($columns as $col_idx => $col_name) {
             $col_data = array();
             
@@ -280,72 +255,40 @@ class WP_Survey_Stats {
 
     /**
      * 格式化文本题数据
-     *
-     * @param array $stats 原始统计
-     * @return array
      */
     private function format_text_data(array $stats): array {
-        // 文本题返回原始答案列表
         return array(
             'type' => 'text',
-            'answers' => array_filter($stats),
+            'answers' => array_filter($stats, function($v) { return $v !== null && $v !== ''; }),
         );
     }
 
     /**
      * 生成颜色数组
-     *
-     * @param int $count 数量
-     * @return array
      */
     private function generate_colors(int $count): array {
         $base_colors = array(
-            '#1a73e8', // 主色-蓝
-            '#00bcd4', // 辅助-青
-            '#0d47a1', // 深蓝
-            '#4caf50', // 绿色
-            '#ff9800', // 橙色
-            '#e91e63', // 粉色
-            '#9c27b0', // 紫色
-            '#607d8b', // 蓝灰
-            '#795548', // 棕色
-            '#f44336', // 红色
+            '#1a73e8', '#00bcd4', '#0d47a1', '#4caf50', '#ff9800',
+            '#e91e63', '#9c27b0', '#607d8b', '#795548', '#f44336',
         );
         
         $colors = array();
         for ($i = 0; $i < $count; $i++) {
             $colors[] = $base_colors[$i % count($base_colors)];
         }
-        
         return $colors;
     }
 
     /**
      * 获取矩阵题颜色
-     *
-     * @param int $index 索引
-     * @return string
      */
     private function get_matrix_color(int $index): string {
-        $colors = array(
-            '#1a73e8',
-            '#00bcd4',
-            '#4caf50',
-            '#ff9800',
-            '#9c27b0',
-            '#f44336',
-        );
-        
+        $colors = array('#1a73e8', '#00bcd4', '#4caf50', '#ff9800', '#9c27b0', '#f44336');
         return $colors[$index % count($colors)];
     }
 
     /**
      * 获取答卷列表（带用户信息）
-     *
-     * @param int $survey_id 问卷ID
-     * @param int $limit 限制数量
-     * @param int $offset 偏移量
-     * @return array
      */
     public function get_response_list(int $survey_id, int $limit = 50, int $offset = 0): array {
         $responses = $this->db->get_responses($survey_id, array(
@@ -353,7 +296,6 @@ class WP_Survey_Stats {
             'offset' => $offset,
         ));
         
-        // 补充用户信息
         foreach ($responses as &$response) {
             if ($response['user_id']) {
                 $user = get_userdata($response['user_id']);
@@ -361,7 +303,6 @@ class WP_Survey_Stats {
             } else {
                 $response['user_name'] = '访客';
             }
-            // 补充IP归属地
             $response['ip_display'] = $this->format_ip_display($response['ip_address'] ?? '');
         }
         unset($response);
@@ -371,9 +312,6 @@ class WP_Survey_Stats {
 
     /**
      * 获取单份答卷详情
-     *
-     * @param int $response_id 答卷ID
-     * @return array
      */
     public function get_response_detail(int $response_id): array {
         $response = $this->db->get_response($response_id);
@@ -382,7 +320,6 @@ class WP_Survey_Stats {
             return array();
         }
         
-        // 获取用户信息
         if ($response['user_id']) {
             $user = get_userdata($response['user_id']);
             $response['user_name'] = $user ? $user->display_name : '用户 #' . $response['user_id'];
@@ -390,7 +327,6 @@ class WP_Survey_Stats {
             $response['user_name'] = '访客';
         }
         
-        // 获取答案
         $response['answers'] = $this->db->get_answers($response_id);
         
         return $response;
@@ -398,9 +334,6 @@ class WP_Survey_Stats {
 
     /**
      * 格式化完成时间
-     *
-     * @param int $seconds 秒数
-     * @return string
      */
     public static function format_duration(int $seconds): string {
         if ($seconds < 60) {
@@ -422,26 +355,20 @@ class WP_Survey_Stats {
 
     /**
      * 生成词云数据（简单实现）
-     *
-     * @param array $texts 文本数组
-     * @return array
      */
     public function generate_word_frequencies(array $texts): array {
         $word_counts = array();
         
         foreach ($texts as $text) {
-            // 简单分词（按空格和标点）
-            $words = preg_split('/[\s,.!?;:，。！？；：""\'\'（）()]+/u', $text);
+            $words = preg_split('/[\s,.!?;:\x{FF0C}\x{3002}\x{FF01}\x{FF1F}\x{FF1B}\x{FF1A}\x{201C}\x{201D}\x{2018}\x{2019}\x{FF08}\x{FF09}()]+/u', $text);
             
             foreach ($words as $word) {
                 $word = trim($word);
                 
-                // 过滤单字和常见停用词
                 if (mb_strlen($word) < 2) {
                     continue;
                 }
                 
-                // 常见停用词
                 $stopwords = array('这个', '那个', '什么', '怎么', '没有', '不是', '就是', '可以', '因为', '所以');
                 if (in_array($word, $stopwords)) {
                     continue;
@@ -455,16 +382,15 @@ class WP_Survey_Stats {
             }
         }
         
-        // 按频率排序
         arsort($word_counts);
         
-        // 取前50个
         return array_slice($word_counts, 0, 50, true);
     }
 
     /**
      * 格式化IP地址显示：IPv4/IPv6 省份.城市
-     * 使用 ip-api.com 免费接口查询归属地，带瞬态缓存
+     * IPv4优先用pconline（纯真库，最准，原生中文），IPv6用ip-api.com
+     * 使用瞬态缓存7天
      *
      * @param string $ip IP地址
      * @return string 格式化后的显示文本
@@ -474,40 +400,95 @@ class WP_Survey_Stats {
             return '';
         }
 
-        // 判断IP版本
-        $version = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ? 'IPv4' : 'IPv6';
+        $is_ipv4 = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+        $version = $is_ipv4 ? 'IPv4' : 'IPv6';
 
-        // 查缓存
         $cache_key = 'wpsurvey_ip_' . md5($ip);
         $cached = get_transient($cache_key);
         if ($cached !== false) {
             return $version . ' ' . $cached;
         }
 
-        // 调用 ip-api.com 查询（HTTP免费接口，限45次/分钟）
+        $location = '';
+
+        if ($is_ipv4) {
+            // IPv4: 优先用 pconline（纯真库，国内最准，原生中文GBK编码）
+            $response = wp_remote_get('https://whois.pconline.com.cn/ipJson.jsp?ip=' . urlencode($ip) . '&json=true', array(
+                'timeout' => 3,
+            ));
+
+            if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+                $body = wp_remote_retrieve_body($response);
+                $body_utf8 = mb_convert_encoding($body, 'UTF-8', 'GBK');
+                $data = json_decode($body_utf8, true);
+                if (!empty($data['pro']) && empty($data['err'])) {
+                    $province = $data['pro'] ?? '';
+                    $city = $data['city'] ?? '';
+                    $pro_short = preg_replace('/(省|市|自治区|特别行政区)$/', '', $province);
+                    $city_short = preg_replace('/(市|地区|州|盟)$/', '', $city);
+                    if ($province && $city && $pro_short !== $city_short) {
+                        $location = $pro_short . '.' . $city_short;
+                    } elseif ($city) {
+                        $location = $city_short;
+                    } elseif ($province) {
+                        $location = $pro_short;
+                    }
+                }
+            }
+
+            if (empty($location)) {
+                $location = $this->ip_api_lookup($ip);
+            }
+        } else {
+            $location = $this->ip_api_lookup($ip);
+        }
+
+        set_transient($cache_key, $location, 7 * DAY_IN_SECONDS);
+
+        return $version . ($location ? ' ' . $location : '');
+    }
+
+    /**
+     * ip-api.com 查询IP归属地（辅助方法）
+     * 对IPv6定位可能不准，如果返回非中国则忽略
+     *
+     * @param string $ip IP地址
+     * @return string 归属地字符串
+     */
+    private function ip_api_lookup(string $ip): string {
         $response = wp_remote_get('http://ip-api.com/json/' . urlencode($ip) . '?lang=zh-CN', array(
             'timeout' => 3,
         ));
 
-        $location = '';
-        if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
-            $body = json_decode(wp_remote_retrieve_body($response), true);
-            if (!empty($body['status']) && $body['status'] === 'success') {
-                $province = $body['regionName'] ?? '';
-                $city = $body['city'] ?? '';
-                if ($province && $city && $province !== $city) {
-                    $location = $province . '.' . $city;
-                } elseif ($city) {
-                    $location = $city;
-                } elseif ($province) {
-                    $location = $province;
-                }
-            }
+        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+            return '';
         }
 
-        // 缓存7天
-        set_transient($cache_key, $location, 7 * DAY_IN_SECONDS);
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        if (empty($body['status']) || $body['status'] !== 'success') {
+            return '';
+        }
 
-        return $version . ($location ? ' ' . $location : '');
+        $country = $body['country'] ?? '';
+        $province = $body['regionName'] ?? '';
+        $city = $body['city'] ?? '';
+
+        $is_ipv6 = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false;
+        if ($is_ipv6 && $country !== '中国') {
+            return '';
+        }
+
+        $pro_short = preg_replace('/(省|市|自治区|特别行政区)$/', '', $province);
+        $city_short = preg_replace('/(市|地区|州|盟)$/', '', $city);
+
+        if ($province && $city && $pro_short !== $city_short) {
+            return $pro_short . '.' . $city_short;
+        } elseif ($city) {
+            return $city_short;
+        } elseif ($province) {
+            return $pro_short;
+        }
+
+        return '';
     }
 }
